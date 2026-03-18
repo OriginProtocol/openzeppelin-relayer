@@ -10,8 +10,9 @@ services:
       - 8080:8080/tcp
     secrets:
       - api_key
-      - keystore_passphrase
       - webhook_signing_key
+      - aws_access_key_id
+      - aws_secret_access_key
     environment:
       APP_PORT: ${APP_PORT:-8080}
       METRICS_PORT: ${METRICS_PORT:-8081}
@@ -20,7 +21,8 @@ services:
       RATE_LIMIT_BURST: ${RATE_LIMIT_BURST:-30}
       METRICS_ENABLED: ${METRICS_ENABLED:-false}
       WEBHOOK_SIGNING_KEY: ${WEBHOOK_SIGNING_KEY:-/dev/null}
-      KEYSTORE_PASSPHRASE: ${KEYSTORE_PASSPHRASE:-/dev/null}
+      AWS_ACCESS_KEY_ID: ${AWS_ACCESS_KEY_ID}
+      AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY}
       API_KEY: ${API_KEY}
       # Options: trace, debug, info, warn, error
       # Default: info
@@ -68,8 +70,6 @@ services:
       - REDIS_ADDR=redis://redis:6379
     security_opt:
       - no-new-privileges
-    profiles:
-      - metrics
     depends_on:
       - redis
     networks:
@@ -88,24 +88,6 @@ services:
     volumes:
       - ./cmd/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
     restart: on-failure:5
-    profiles:
-      - metrics
-  grafana:
-    image: grafana/grafana:11.5.1
-    security_opt:
-      - no-new-privileges
-    ports:
-      - 3000:3000/tcp
-    networks:
-      - metrics-network
-      - relayer-network
-    volumes:
-      - ./cmd/prometheus/grafana.ini:/etc/grafana/grafana.ini
-      - ./cmd/prometheus/datasources:/etc/grafana/provisioning/datasources
-      - ./cmd/prometheus/dashboards:/etc/grafana/provisioning/dashboards
-    restart: on-failure:5
-    profiles:
-      - metrics
 networks:
   metrics-network:
     internal: true
@@ -119,5 +101,7 @@ secrets:
     environment: API_KEY
   webhook_signing_key:
     environment: WEBHOOK_SIGNING_KEY
-  keystore_passphrase:
-    environment: KEYSTORE_PASSPHRASE
+  aws_access_key_id:
+    environment: AWS_ACCESS_KEY_ID
+  aws_secret_access_key:
+    environment: AWS_SECRET_ACCESS_KEY

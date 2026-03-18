@@ -17,74 +17,38 @@ This relayer service enables interaction with blockchain networks through transa
 
 > ⚠️ Redis is automatically started when using docker compose. If you are not using docker compose, you need to create a dedicated network and start redis manually.
 
-## How to use images pushed to DockerHub
+## Running Docker locally
 
-- These images are automatically pulled when you use docker compose. See [using docker compose](https://github.com/OpenZeppelin/openzeppelin-relayer?tab=readme-ov-file#running-services-with-docker-compose) for more information.
-- If you are not using docker compose and you want to use these images, follow the steps below.
-
-### 1. Pull the image
-
-You can pull the latest image using the following command:
+### 1. Setup env vars
 
 ```bash
-docker pull openzeppelin/openzeppelin-relayer:latest
+cp .env.example .env
+uuidgen -> generates UUID
 ```
 
-### 2. Run the image
+Create a unique uuid for WEBHOOK_SIGNING_KEY & API_KEY and set them in .env
 
-You can run the image using the following command:
+Set the correct AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY depending on user / relayer environment requires.
+ 
+AWS user `relayer-kms-signer-dev` 
+ - has access to `origin-relayer-development-evm`
+ - with a public address: `0xca00ab46d0e009985c84c41e2f712c31102ff967`
+
+AWS user `relayer-kms-signer` 
+ - has access to `origin-relayer-production-evm`
+ - with a public address: `[todo....]`
+
+### 2. Start the service
 
 ```bash
-docker run --env-file .env -d \
-  --name relayer \
-  --network relayer-net \
-  -p 8080:8080 \
-  -v ./config:/app/config:ro \
-  openzeppelin/openzeppelin-relayer:latest
+docker compose up
 ```
 
 ### 3. Access the service
 
 Once the container is running, you can access the service at `http://localhost:8080`.
 
-You can test the relayer by sending a request using a curl call. See [testing relayer section](https://github.com/OpenZeppelin/openzeppelin-relayer?tab=readme-ov-file#test-the-relayer) for more information.
-
-### 4. Stop the container
-
-You can stop the container using the following command:
-
 ```bash
-docker stop relayer
+API_KEY=[set the api key] curl -s http://localhost:8080/api/v1/relayers \
+  -H "Authorization: Bearer $API_KEY" | jq
 ```
-
-### 5. Remove the container
-
-You can remove the container using the following command:
-
-```bash
-docker rm relayer
-```
-
-### 6. Remove the image
-
-You can remove the image using the following command:
-
-```bash
-docker rmi openzeppelin/openzeppelin-relayer:latest
-```
-
-## Contributing
-
-We welcome contributions to the OpenZeppelin Relayer. Please read our [contributing section](https://github.com/OpenZeppelin/openzeppelin-relayer/?tab=readme-ov-file#contributing) for more information.
-
-## Observability
-
-See the [observability section](https://github.com/OpenZeppelin/openzeppelin-relayer/?tab=readme-ov-file#observability) for more information on how to set up observability for the relayer.
-
-## License
-
-This project is licensed under the GNU Affero General Public License v3.0 - see the [LICENSE](https://github.com/OpenZeppelin/openzeppelin-relayer/blob/main/LICENSE) file for details.
-
-## Security
-
-For security concerns, please refer to our [Security Policy](https://github.com/OpenZeppelin/openzeppelin-relayer/blob/main/SECURITY.md).
