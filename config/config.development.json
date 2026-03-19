@@ -1,0 +1,39 @@
+{
+  "relayers": [
+    {
+      "id": "hoodi-example",
+      "name": "Hoodi Relayer",
+      "network": "hoodi",
+      "paused": false,
+      "notification_id": "notification-example",
+      "signer_id": "relayer-kms-signer-dev",
+      "network_type": "evm",
+      "policies": {
+        "min_balance": 0
+      }
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notification-example",
+      "type": "webhook",
+      "url": "https://example.com/webhook",
+      "signing_key": {
+        "type": "env",
+        "value": "WEBHOOK_SIGNING_KEY"
+      }
+    }
+  ],
+  "signers": [
+    {
+      "id": "relayer-kms-signer-dev",
+      "type": "aws_kms",
+      "config": {
+        "region": "us-east-1",
+        "key_id": "arn:aws:kms:us-east-1:412463071885:key/mrk-248128595151466bb7f7b9a56501a98f"
+      }
+    }
+  ],
+  "networks": "./config/networks",
+  "plugins": []
+}
