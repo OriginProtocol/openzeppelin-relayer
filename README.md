@@ -24,9 +24,11 @@ This relayer service enables interaction with blockchain networks through transa
 ```bash
 cp .env.example .env
 uuidgen -> generates UUID
+openssl rand -base64 32 -> generates STORAGE_ENCRYPTION_KEY
 ```
 
 Create a unique uuid for WEBHOOK_SIGNING_KEY & API_KEY and set them in .env
+Set STORAGE_ENCRYPTION_KEY in `.env` when using Redis repository storage (`REPOSITORY_STORAGE_TYPE=redis`).
 
 Set the correct AWS_ACCESS_KEY_ID & AWS_SECRET_ACCESS_KEY depending on user / relayer environment requires.
  
@@ -95,12 +97,20 @@ API_KEY=<min-32-char-secret>
 WEBHOOK_SIGNING_KEY=<secret>
 AWS_ACCESS_KEY_ID=<aws-access-key-id>
 AWS_SECRET_ACCESS_KEY=<aws-secret-access-key>
+STORAGE_ENCRYPTION_KEY=<base64-encoded-32-byte-key>
 ```
 
-Recommended for production data protection:
+Generate the encryption key with one of:
+
+```bash
+openssl rand -base64 32
+# or
+cargo run --example generate_encryption_key
+```
+
+Recommended for production reliability:
 
 ```env
-STORAGE_ENCRYPTION_KEY=<base64-encoded-32-byte-key>
 DISTRIBUTED_MODE=true
 ```
 
