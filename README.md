@@ -62,3 +62,70 @@ Once the container is running, you can access the service at `http://localhost:8
 API_KEY=[set the api key] curl -s http://localhost:8080/api/v1/relayers \
   -H "Authorization: Bearer $API_KEY" | jq
 ```
+
+## Railway production deployment (with Redis)
+
+Use Railway source builds with `Dockerfile.production`. A separate GitHub workflow for image builds is not required.
+
+Reference template: `.env.railway.production.example`.
+
+### 1. Provision Redis in Railway
+
+1. Add a Redis service from Railway templates.
+2. Rename it clearly, for example: `redis-prod`.
+3. Keep Redis internal/private (disable public TCP proxy unless you explicitly need external access).
+
+### 2. Configure relayer service variables
+
+Set these in the Railway service running this repo:
+
+```env
+CONFIG_DIR=./config
+CONFIG_FILE_NAME=config.production.json
+REPOSITORY_STORAGE_TYPE=redis
+REDIS_URL=${{redis-prod.REDIS_URL}}
+REDIS_KEY_PREFIX=oz-relayer-prod
+REDIS_CONNECTION_TIMEOUT_MS=10000
+```
+
+Required application secrets (already needed by the relayer):
+
+```env
+API_KEY=<min-32-char-secret>
+WEBHOOK_SIGNING_KEY=<secret>
+AWS_ACCESS_KEY_ID=<aws-access-key-id>
+AWS_SECRET_ACCESS_KEY=<aws-secret-access-key>
+```
+
+Recommended for production data protection:
+
+```env
+STORAGE_ENCRYPTION_KEY=<base64-encoded-32-byte-key>
+DISTRIBUTED_MODE=true
+```
+
+### 3. Deploy and validate
+
+1. Trigger a Railway deployment.
+2. Confirm logs do not contain `REDIS_URL must be set` or Redis connection errors.
+3. Verify health endpoint:
+
+```bash
+curl -s https://<your-railway-domain>/api/v1/health
+```
+
+4. Verify relayers are loaded from `config.production.json`:
+
+```bash
+curl -s https://<your-railway-domain>/api/v1/relayers \
+  -H "Authorization: Bearer <API_KEY>" | jq
+```
+
+Expected: both `mainnet` and `base` relayers are present.
+
+### 4. Backups and restore runbook
+
+1. Enable Redis backups/snapshots in Railway.
+2. During incident recovery, restore the latest healthy snapshot on Redis.
+3. Redeploy the relayer service to re-establish clean connections.
+4. Re-run the health and relayer validation calls above.
