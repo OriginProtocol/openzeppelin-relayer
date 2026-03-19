@@ -15,10 +15,7 @@ WORKDIR /usr/app
 ARG CARGO_FEATURES=""
 
 COPY . .
-RUN --mount=type=cache,id=ozr-cargo-registry,target=/usr/local/cargo/registry \
-    --mount=type=cache,id=ozr-cargo-git,target=/usr/local/cargo/git \
-    --mount=type=cache,id=ozr-cargo-target,target=/usr/app/target \
-    if [ -n "$CARGO_FEATURES" ]; then \
+RUN if [ -n "$CARGO_FEATURES" ]; then \
       cargo install --root /usr/app --path . --locked --features "$CARGO_FEATURES"; \
     else \
       cargo install --root /usr/app --path . --locked; \
