@@ -68,6 +68,7 @@ API_KEY=[set the api key] curl -s http://localhost:8080/api/v1/relayers \
 ## Railway production deployment (with Redis)
 
 Use Railway source builds with `Dockerfile.production`. A separate GitHub workflow for image builds is not required.
+This Railway service is configured to auto-deploy from GitHub on pushes to the `production` branch (each push triggers a Docker build + deployment).
 
 Reference template: `.env.railway.production.example`.
 
