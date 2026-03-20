@@ -19,10 +19,7 @@ ARG CARGO_FEATURES=""
 # Copy
 COPY . .
 
-RUN --mount=type=cache,target=/usr/local/cargo/registry \
-    --mount=type=cache,target=/usr/local/cargo/git \
-    --mount=type=cache,target=/usr/app/target \
-    if [ -n "$CARGO_FEATURES" ]; then \
+RUN if [ -n "$CARGO_FEATURES" ]; then \
       cargo install --root /usr/app --path . --debug --locked --features "$CARGO_FEATURES"; \
     else \
       cargo install --root /usr/app --path . --debug --locked; \
@@ -34,6 +31,7 @@ FROM cgr.dev/chainguard/wolfi-base
 WORKDIR /app
 
 COPY --from=base --chown=nonroot:nonroot /usr/app/bin/openzeppelin-relayer /app/openzeppelin-relayer
+COPY --from=base --chown=nonroot:nonroot /usr/app/config /app/config
 COPY --from=base /usr/lib/libssl.so.3 /usr/lib/libssl.so.3
 COPY --from=base /usr/lib/libcrypto.so.3 /usr/lib/libcrypto.so.3
 

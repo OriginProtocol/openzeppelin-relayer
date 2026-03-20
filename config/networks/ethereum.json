@@ -60,6 +60,22 @@
       "tags": [
         "deprecated"
       ]
+    },
+    {
+      "from": "mainnet",
+      "type": "evm",
+      "network": "hoodi",
+      "chain_id": 560048,
+      "explorer_urls": [
+        "https://api-hoodi.etherscan.io/api",
+        "https://hoodi.etherscan.io"
+      ],
+      "is_testnet": true,
+      "required_confirmations": 6,
+      "rpc_urls": [
+        "https://rpc.hoodi.ethpandaops.io"
+      ],
+      "tags": []
     }
   ]
 }
